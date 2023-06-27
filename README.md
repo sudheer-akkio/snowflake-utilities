@@ -10,3 +10,4 @@ This repository contains utilities for programmatically accessing and working wi
 
 ## Getting Started
 
+- Follow the steps in `demo_GettingStarted.ipynb` in the notebooks folder
