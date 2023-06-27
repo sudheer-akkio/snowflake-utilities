@@ -4,9 +4,9 @@ This repository contains utilities for programmatically accessing and working wi
 
 ## Installation and Setup
 
-### Install Snowflake Python Connector
+### Install Packages
 
-- Install python connector by executing `pip install snowflake-connector-python` in the terminal
+- Install all python package dependencies using conda by executing `conda create --name <env> --file requirements.txt` in the terminal from the top level directory
 
 ## Getting Started
 
