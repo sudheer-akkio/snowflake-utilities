@@ -1,5 +1,4 @@
 # Setup
-import os
 import time
 
 import pandas as pd
@@ -7,7 +6,6 @@ import snowflake.connector as snow
 from snowflake.connector import ProgrammingError
 from snowflake.connector.pandas_tools import pd_writer
 from sqlalchemy import create_engine
-from sqlalchemy.dialects import registry
 
 
 class SnowflakeConnector:
@@ -25,13 +23,11 @@ class SnowflakeConnector:
         self.data = pd.DataFrame()
         self.filename = ""
 
-        self._table_check = False
-
-    # Public Methods
-    def setup(self):
         # Initialize connection
         self.__create_connection()
 
+    # Public Methods
+    def setup(self):
         # Set role
         self.__set_role()
 
@@ -67,10 +63,13 @@ class SnowflakeConnector:
             conn_string = f"snowflake://{self.username}:{self.password}@{self.account}/{self.database.lower()}/{self.schema.lower()}"
             engine = create_engine(conn_string)
 
-            if_exists = "replace"
+            # Raise a ValueError if table already exists
+            if_exists = "fail"
+
+            self.table = self.table.lower().replace("-", "_")
 
             self.data.to_sql(
-                self.table.lower(),
+                self.table,
                 con=engine,
                 if_exists=if_exists,
                 index=False,
@@ -79,6 +78,39 @@ class SnowflakeConnector:
             )
 
             print("Completed!\n")
+
+    def add_rows(self, data):
+        # Add rows to existing table
+        if self.__check_table_exists():
+            print("Adding rows...")
+
+            data.columns = map(lambda x: str(x).upper(), data.columns)
+
+            conn_string = f"snowflake://{self.username}:{self.password}@{self.account}/{self.database.lower()}/{self.schema.lower()}"
+            engine = create_engine(conn_string)
+
+            # append data to existing table
+            if_exists = "append"
+
+            self.table = self.table.lower().replace("-", "_")
+
+            data.to_sql(
+                self.table,
+                con=engine,
+                if_exists=if_exists,
+                index=False,
+                index_label=None,
+                method=pd_writer,
+            )
+
+            print("Completed!\n")
+        else:
+            raise ValueError(
+                self.table + " does not exist. Create table before adding rows."
+            )
+
+    def delete_rows():
+        pass
 
     # Private Methods
     def __create_connection(self) -> None:
@@ -118,7 +150,7 @@ class SnowflakeConnector:
         result = self.__execute_query(sql_command).fetchall()
         db_list = [db[1] for db in result]
 
-        if self.database not in db_list:
+        if self.database.upper() not in db_list:
             raise ValueError(
                 self.database
                 + " does not exist in current databases. Please specify a valid database."
@@ -147,10 +179,26 @@ class SnowflakeConnector:
                 self.conn.get_query_status_throw_if_error(query_id)
             ):
                 time.sleep(1)
+
+            return result
+
         except ProgrammingError as err:
             print("Programming Error: {0}".format(err))
 
-        return result
+    def __check_table_exists(self):
+        # Check to see if table already exists
+        sql_command = (
+            "SHOW TABLES LIKE '"
+            + self.table
+            + "%' IN "
+            + self.database
+            + "."
+            + self.schema
+        )
+        result = self.__execute_query(sql_command).fetchall()
+        table_list = [tb[1] for tb in result]
+
+        return self.table.upper() in table_list
 
     # Destructor
     def __del__(self):
