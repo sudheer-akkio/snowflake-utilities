@@ -59,8 +59,3 @@ def partition_time_series(
 
     training_data.to_csv(train_filename)
     testing_data.to_csv(test_filename)
-
-
-filename = "/Users/snuggeha/Documents/Internal-Demos/snowflake-utilities/data/DR_Demo_Sales_Multiseries.csv"
-
-partition_time_series(filename, "Date", "Sales")
