@@ -70,16 +70,20 @@ class SnowflakeConnector:
             data_temp = self.data
             data_temp = data_temp.drop(data_temp.index)
 
-            data_temp.to_sql(
-                self._table,
-                con=engine,
-                if_exists=if_exists,
-                index=False,
-                index_label=None,
-                method=pd_writer,
-            )
+            try:
+                data_temp.to_sql(
+                    self._table,
+                    con=engine,
+                    if_exists=if_exists,
+                    index=False,
+                    index_label=None,
+                    method=pd_writer,
+                )
 
-            print("Completed!\n")
+                print("Completed!\n")
+
+            except ValueError as err:
+                print("Value Error: {0}. Skipping process.".format(err))
 
     def add_rows(self):
         # Add rows to existing table
