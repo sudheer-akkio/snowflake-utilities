@@ -1,4 +1,6 @@
 # Setup
+import json
+import os
 import time
 
 import pandas as pd
@@ -6,6 +8,7 @@ import snowflake.connector as snow
 from snowflake.connector import ProgrammingError
 from snowflake.connector.pandas_tools import pd_writer
 from sqlalchemy import create_engine
+from sqlalchemy.dialects import registry
 
 
 class SnowflakeConnector:
@@ -23,11 +26,11 @@ class SnowflakeConnector:
         self.data = pd.DataFrame()
         self.filename = ""
 
-        # Initialize connection
-        self._create_connection()
-
     # Public Methods
     def setup(self):
+        # Initialize connection objects
+        self._create_connection()
+
         # Set role
         self._set_role()
 
@@ -44,8 +47,11 @@ class SnowflakeConnector:
         if self.filename != "":
             print("Importing data...")
 
-            self.data = pd.read_csv(self.filename, index_col=False)
-            self.data.columns = map(lambda x: str(x).upper(), self.data.columns)
+            self.data = pd.read_csv(self.filename, index_col=None)
+            self.data.columns = map(
+                lambda x: str(x).upper().replace(" ", "_"), self.data.columns
+            )
+
         else:
             raise ValueError("Filename is empty.")
 
@@ -62,28 +68,25 @@ class SnowflakeConnector:
             print("Creating table...")
             # Setup sqlalchemy engine
             conn_string = f"snowflake://{self.username}:{self.password}@{self.account}/{self.database.lower()}/{self.schema.lower()}"
+            registry.register("snowflake", "snowflake.sqlalchemy", "dialect")
             engine = create_engine(conn_string)
 
             # Raise a ValueError if table already exists
             if_exists = "fail"
 
-            data_temp = self.data
-            data_temp = data_temp.drop(data_temp.index)
+            # data_temp = self.data
+            # data_temp = data_temp.drop(data_temp.index)
 
-            try:
-                data_temp.to_sql(
-                    self._table,
-                    con=engine,
-                    if_exists=if_exists,
-                    index=False,
-                    index_label=None,
-                    method=pd_writer,
-                )
+            self.data.to_sql(
+                self._table,
+                con=engine,
+                if_exists=if_exists,
+                index=False,
+                index_label=None,
+                method=pd_writer,
+            )
 
-                print("Completed!\n")
-
-            except ValueError as err:
-                print("Value Error: {0}. Skipping process.".format(err))
+            print(f"Created {self._table} table succesfully!")
 
     def add_rows(self):
         # Add rows to existing table
@@ -116,6 +119,36 @@ class SnowflakeConnector:
 
         sql_command = "TRUNCATE TABLE IF EXISTS " + self._table
         self._execute_query(sql_command)
+
+    def to_dict(self):
+        return {
+            "account": self.account,
+            "username": self.username,
+            "password": self.password,
+            "role": self.role,
+            "database": self.database,
+            "warehouse": self.warehouse,
+            "schema": self.schema,
+            "table": self.table,
+            "data": self.data.to_dict(orient="records"),
+            "filename": self.filename,
+        }
+
+    @classmethod
+    def from_dict(cls, data):
+        instance = cls(
+            data["account"],
+            data["username"],
+            data["password"],
+        )
+        instance.role = data["role"]
+        instance.database = data["database"]
+        instance.warehouse = data["warehouse"]
+        instance.schema = data["schema"]
+        instance.table = data["table"]
+        instance.data = pd.DataFrame(data["data"])
+        instance.filename = data["filename"]
+        return instance
 
     # Private Methods
     def _create_connection(self) -> None:
@@ -217,9 +250,54 @@ class SnowflakeConnector:
     # Destructor
     def __del__(self):
         print("Closing connection!\n")
-        self.curr.close()
-        self.conn.close()
+        if hasattr(self, "curr"):
+            self.curr.close()
+        if hasattr(self, "conn"):
+            self.conn.close()
+
+
+class SnowflakeConnectorEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, SnowflakeConnector):
+            return obj.to_dict()
+        return super().default(obj)
+
+
+def snowflake_connector_decoder(data):
+    keys = ["account", "username", "password"]
+
+    if all(key in data for key in keys):
+        return SnowflakeConnector.from_dict(data)
+    return data
+
+
+def test_snowflake_connection(account, username, password):
+    try:
+        # Attempt to establish a connection
+        conn = snow.connect(account=account, user=username, password=password)
+
+        # Close the connection
+        conn.close()
+
+        print("Connection successful!")
+    except Exception as e:
+        raise ValueError("Connection failed:", e)
 
 
 if __name__ == "__main__":
     print("Starting process...\n")
+    # Define input parameters
+    account = "pnb55073.us-east-1"
+    user = "sudheer"
+    password = os.getenv("SNOWSQL_PWD")  # I recommend not hardcoding your pass
+
+    database = "sudheer_demo"
+    schema = "public"  # leave schema as public by default, unless you want to create a new schema
+
+    # Construct connector object and set attributes
+    # obj = SnowflakeConnector(account, user, password)
+
+    # test_snowflake_connection(account, user, password)
+
+    # print(obj.toJSON())
+    # print(json.dumps(obj, sort_keys=True, indent=4))

@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}
+    Upload Data Page
+{% endblock %}
+
+{% block content %}
+<body class="text-center">
+    <div class="container">
+        <form method="POST" class="form-signin" enctype="multipart/form-data" style="color:white">
+            {{ form.hidden_tag() }}
+            <h1 class="h3 mb-3 font-weight-normal">
+                <br>Upload Data to Snowflake</br>
+            </h1>
+            <br>
+
+                {{ form.role.label() }}
+                {{ form.role(class="form-control", placeholder="Role") }}
+
+                <br>
+
+                {{ form.database.label() }}
+                {{ form.database(class="form-control", placeholder="Database") }}
+
+                </br>
+
+                {{ form.warehouse.label() }}
+                {{ form.warehouse(class="form-control", placeholder="Warehouse") }}
+
+                <br>
+                {{ form.schema.label() }}
+                {{ form.schema(class="form-control", placeholder="Schema") }}
+
+                </br>
+
+                {{ form.table.label() }}
+                {{ form.table(class="form-control", placeholder="Table") }}
+
+                <br>
+                {{ form.create_table.label() }}
+                {{ form.create_table(class="form-control") }}
+
+                </br>
+
+                {{ form.filename.label() }}
+                {{ form.filename(class="form-control", placeholder="filename") }}
+
+            <br>
+
+            {{ form.submit(class="btn btn-lg btn-block btn-primary") }}
+
+        </form>
+    </div>
+</body>
+{% endblock %}
