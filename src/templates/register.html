@@ -8,10 +8,11 @@
     <div class="container">
         <form method="POST" class="form-register" style="color:white">
             {{ form.hidden_tag() }} <!-- NEED TO ADD THIS TO MAKE SURE YOU DON'T GET CSRF ERRORS -->
-            <img class="mb-4" src="https://res.cloudinary.com/jimshapedcoding/image/upload/v1597332609/android-icon-192x192_ove2a7.png" alt="">
-            <h1 class="h3 mb-3 font-weight-normal">
-                Please Create your Account
-            </h1>
+            <br>
+                <h1 class="h3 mb-3 font-weight-normal">
+                    Please Create your Account
+                </h1>
+            </br>
             <br>
 
                 {{ form.account.label() }}

@@ -74,9 +74,6 @@ class SnowflakeConnector:
             # Raise a ValueError if table already exists
             if_exists = "fail"
 
-            # data_temp = self.data
-            # data_temp = data_temp.drop(data_temp.index)
-
             self.data.to_sql(
                 self._table,
                 con=engine,
@@ -286,18 +283,3 @@ def test_snowflake_connection(account, username, password):
 
 if __name__ == "__main__":
     print("Starting process...\n")
-    # Define input parameters
-    account = "pnb55073.us-east-1"
-    user = "sudheer"
-    password = os.getenv("SNOWSQL_PWD")  # I recommend not hardcoding your pass
-
-    database = "sudheer_demo"
-    schema = "public"  # leave schema as public by default, unless you want to create a new schema
-
-    # Construct connector object and set attributes
-    # obj = SnowflakeConnector(account, user, password)
-
-    # test_snowflake_connection(account, user, password)
-
-    # print(obj.toJSON())
-    # print(json.dumps(obj, sort_keys=True, indent=4))

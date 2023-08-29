@@ -27,7 +27,8 @@ from src.SnowflakeConnector import (
 @app.route("/")  # Decorator -- what URL should I navigate and display the HTML code?
 @app.route("/home")  # This is how we can handle multiple routes for the same request
 def home_page():
-    return render_template("home.html")
+    active_tab = "home"
+    return render_template("home.html", active_tab=active_tab)
 
 
 @app.route("/upload", methods=["GET", "POST"])
@@ -111,7 +112,8 @@ def upload_page():
                 f"There was an error with creating a user: {err_msg}", category="danger"
             )
 
-    return render_template("upload.html", form=form)
+    active_tab = "upload"
+    return render_template("upload.html", form=form, active_tab=active_tab)
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -145,7 +147,8 @@ def register_page():
                 f"There was an error with creating a user: {err_msg}", category="danger"
             )
 
-    return render_template("register.html", form=form)
+    active_tab = "register"
+    return render_template("register.html", form=form, active_tab=active_tab)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -193,7 +196,9 @@ def login_page():
     if form.errors != {}:
         for err_msg in form.errors.values():
             flash(f"There was an error with logging in: {err_msg}", category="danger")
-    return render_template("login.html", form=form)
+
+    active_tab = "login"
+    return render_template("login.html", form=form, active_tab=active_tab)
 
 
 @app.route("/logout")

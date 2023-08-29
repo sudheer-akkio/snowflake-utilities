@@ -21,10 +21,10 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mr-auto">
-                    <li class="nav-item active">
+                    <li class="nav-item {% if active_tab == 'home' %}active{% endif %}">
                         <a class="nav-link" href="{{ url_for('home_page') }}">Home <span class="sr-only">(current)</span></a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item {% if active_tab == 'upload' %}active{% endif %}">
                         <a class="nav-link" href="{{ url_for('upload_page') }}">Upload Data</a>
                     </li>
                 </ul>
@@ -40,10 +40,10 @@
                     </ul>
                 {% else %}
                     <ul class="navbar-nav">
-                        <li class="nav-item">
+                        <li class="nav-item {% if active_tab == 'login' %}active{% endif %}">
                             <a class="nav-link" href="{{ url_for('login_page') }}">Login</a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item {% if active_tab == 'register' %}active{% endif %}">
                             <a class="nav-link" href="{{ url_for('register_page') }}">Register</a>
                         </li>
                     </ul>
