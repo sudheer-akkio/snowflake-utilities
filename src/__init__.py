@@ -7,7 +7,7 @@ from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
 
-from src.config import DEV_DB
+from src.config import DEV_DB, UPLOAD_FOLDER
 
 app = Flask(__name__)  # built-in variable that refers to the local python file
 app.config["SQLALCHEMY_DATABASE_URI"] = DEV_DB
@@ -22,7 +22,6 @@ login_manager.login_view = (
 )
 login_manager.login_message_category = "info"  # Customizes the flashed messages to info
 
-UPLOAD_FOLDER = "/Users/snuggeha/Documents/Internal-Demos/snowflake-utilities/uploads"
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 with app.app_context():
