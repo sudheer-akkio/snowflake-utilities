@@ -26,5 +26,4 @@ There are two ways to run the utilities:
 1. Programmatically
     - Follow the steps in `demo_GettingStarted.ipynb` in the notebooks folder
 2. Web Application
-    - Once you have all the dependencies installed, execute the `run.py` function to start the app in development mode. Navigate to the localhost specified in the terminal (e.g., http://127.0.0.1:5000) to run the application locally.
-    - I am working on deploying this to production soon...
+    - Navigate to `45.33.80.22` to use the web app
